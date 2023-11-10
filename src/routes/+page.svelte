@@ -63,7 +63,7 @@
         currentReveal = reveals.length - 1;
     }
 
-    function stateSelected(state, reveals) {
+    function stateSelected(state, reveals, currentReveal) {
         const reveal = reveals[currentReveal];
         return reveal.includes(state[0] + "," + state[1]);
     }
@@ -118,14 +118,14 @@
                 <thead>
                     <tr class="border-b-stone-300">
                         {#each states as state}
-                            <th class="p-0 w-5" on:click={() => {selectRevealState(state)}}>{state[1]}</th>
+                            <th class="p-0 w-5 cursor-pointer" on:click={() => {selectRevealState(state)}}>{state[1]}</th>
                         {/each}
                     </tr>
                 </thead>
                 <tbody>
                         <tr class="border-b-stone-300">
                     {#each states as state}
-                        <td class="p-0 w-5" class:bg-yellow-50={stateSelected(state, reveals)} on:click={() => {selectRevealState(state)}}>{state[2]}</td>
+                        <td class="p-0 w-5 cursor-pointer" class:bg-yellow-50={stateSelected(state, reveals, currentReveal)} on:click={() => {selectRevealState(state)}}>{state[2]}</td>
                     {/each}
                         </tr>
                 </tbody>
@@ -142,7 +142,7 @@
                     {#each reveals as reveal, i}
                         <div class="flex flex-row items-center">
                             <button class="btn btn-sm btn-circle btn-ghost text-red-500" on:click={() => removeReveal(i)}>✕</button>
-                            <div class="mr-4">Reveal #{i}</div>
+                            <div class="mr-4 cursor-pointer" on:click={() => currentReveal = i} class:font-bold={currentReveal === i}>Reveal #{i}</div>
                             <div>{JSON.stringify(reveal)}</div>
                         </div>
                     {/each}
