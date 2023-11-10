@@ -698,15 +698,16 @@ export function applyMinDfa(minDfa, input) {
     let curr = 0;
     let i = 0;
     let symbol = '';
-    let states = [[0, ""]];
+    let states = [[0, 0, ""]];
     let results = [];
     while (i < input.length) {
         symbol = input[i];
         for (let s of Object.keys(minDfa[curr].edges)) {
             let symbols = JSON.parse(s);
             if (symbols.includes(symbol)) {
+                const prev = curr
                 curr = minDfa[curr].edges[s];
-                states.push([curr, symbol])
+                states.push([prev, curr, symbol])
                 break;
             }
         }
@@ -714,7 +715,7 @@ export function applyMinDfa(minDfa, input) {
             i += 1;
             curr = 0;
             results.push(states);
-            states = [[0, ""]];
+            states = [[0, 0, ""]];
         }
         i += 1;
     }

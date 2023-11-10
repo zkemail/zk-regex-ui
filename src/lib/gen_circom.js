@@ -305,6 +305,7 @@ export function genCircomAllstr(graph_json, template_name, reveals) {
     consecutive_lines.push("\tfor (var i = 0; i < msg_bytes; i++) {");
     consecutive_lines.push(`\t\tis_consecutive[msg_bytes-1-i][0] <== states[num_bytes-i][${accept_node}] * (1 - is_consecutive[msg_bytes-i][1]) + is_consecutive[msg_bytes-i][1];`);
     consecutive_lines.push("\t\tis_consecutive[msg_bytes-1-i][1] <== state_changed[msg_bytes-i].out * is_consecutive[msg_bytes-1-i][0];");
+    consecutive_lines.push("\t}");
 
     lines = lines.concat(consecutive_lines);
 

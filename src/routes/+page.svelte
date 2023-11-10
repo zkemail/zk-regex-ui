@@ -6,7 +6,7 @@
     let regex = "a=(b|c)+ d=e";
     let inputs = ["a=bccccccccc d=e","",""];
     let minDfa = [];
-    let reveals = [["0,1"]];
+    let reveals = [[]];
 
     let parsedInputs = [];
 
@@ -36,6 +36,40 @@
         console.log(r);
         let circom = genCircomAllstr(minDfa, "Test", r);
         console.log(circom);
+    }
+
+    let currentReveal = 0;
+    function selectRevealState(state) {
+        const reveal = reveals[currentReveal];
+        const transition = state[0] + "," + state[1];
+        if (reveal.includes(transition)) {
+            reveal.splice(reveal.indexOf(transition), 1);
+        } else {
+            reveal.push(transition);
+        }
+        reveal.sort((a,b) => {
+
+        })
+        reveals[currentReveal] = reveal;
+    }
+
+    function removeReveal(i) {
+        if (reveals.length == 1) {
+            reveals = [[]];
+            return;
+        }
+        reveals.splice(i, 1);
+        reveals = reveals;
+    }
+
+    function stateSelected(state, reveals) {
+        const reveal = reveals[currentReveal];
+        return reveal.includes(state[0] + "," + state[1]);
+    }
+
+    function newReveal() {
+        reveals = [...reveals, []];
+        currentReveal += 1;
     }
 
     $: console.log('Changed selected:', reveals);
@@ -69,13 +103,13 @@
         <div class="form-control w-full mb-4">
             <input id="input3" type="text" bind:value={inputs[2]} placeholder="" class="input input-bordered w-full" />
         </div>
-        <button class="btn mt-4" on:click={test}>Test</button>
+        <button class="btn mt-2 w-full" on:click={test}>Test</button>
     </form>
     {#if parsedInputs.length > 0}
-    <div class="text-left w-full">
+    <div class="text-left w-full mt-4">
         {#each parsedInputs as parsedInput, i}
             {#if parsedInput.length > 0 || inputs[i] !== ""}
-            <div class="text-lg">
+            <div class="text-lg mb-2">
                 Input {i+1}: {parsedInput.length > 0 ? "Accepted" : "Rejected"} 
             </div>
             {#each parsedInput as states}
@@ -84,14 +118,14 @@
                 <thead>
                     <tr class="border-b-stone-300">
                         {#each states as state}
-                            <th class="p-0 w-5">{state[0]}</th>
+                            <th class="p-0 w-5" on:click={() => {selectRevealState(state)}}>{state[1]}</th>
                         {/each}
                     </tr>
                 </thead>
                 <tbody>
                         <tr class="border-b-stone-300">
                     {#each states as state}
-                        <td class="p-0 w-5">{state[1]}</td>
+                        <td class="p-0 w-5" class:bg-yellow-50={stateSelected(state, reveals)} on:click={() => {selectRevealState(state)}}>{state[2]}</td>
                     {/each}
                         </tr>
                 </tbody>
@@ -102,25 +136,17 @@
         {/each}
         <div class="mt-10 w-full">
             <div class="text-xl">
-                Choose states
+                Choose states (Select the characters that you want to reveal from above)
             </div>
                 <div class="flex flex-col">
                     {#each reveals as reveal, i}
-                        <div>Reveal #{i+1}</div>
-                        <div class="form-control mb-4">
-                            {#each reveal as states}
-                                <select class="select w-full" bind:value={states}>
-                                    {#each getStateTransitions(minDfa) as transitions}
-                                        <option {transitions}>{transitions}</option>
-                                    {/each}
-                                </select>
-                            {/each}
-                            <button class="btn" on:click={() => {
-                                reveals[i] = [...reveal, "0,1"];
-                            }}>+</button>
+                        <div class="flex flex-row items-center">
+                            <button class="btn btn-sm btn-circle btn-ghost text-red-500" on:click={() => removeReveal(i)}>✕</button>
+                            <div class="mr-4">Reveal #{i+1}</div>
+                            <div>{JSON.stringify(reveal)}</div>
                         </div>
                     {/each}
-                    <button class="btn mt-4" on:click={() => reveals = [...reveals, ["0,1"]]}>New Reveal</button>
+                    <button class="btn mt-4" on:click={newReveal}>New Reveal</button>
                 </div>
         </div>
         <button class="btn mt-4" on:click={generate}>Generate</button>
