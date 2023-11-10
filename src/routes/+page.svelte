@@ -33,7 +33,6 @@
 
     function generate() {
         let r = reveals.map(r1 => r1.map(r2 => r2.split(",")));
-        console.log(r);
         let circom = genCircomAllstr(minDfa, "Test", r);
         console.log(circom);
     }
@@ -56,10 +55,12 @@
     function removeReveal(i) {
         if (reveals.length == 1) {
             reveals = [[]];
+            currentReveal = 0;
             return;
         }
         reveals.splice(i, 1);
         reveals = reveals;
+        currentReveal = reveals.length - 1;
     }
 
     function stateSelected(state, reveals) {
@@ -72,43 +73,42 @@
         currentReveal += 1;
     }
 
-    $: console.log('Changed selected:', reveals);
 </script>
 
 <div class="h-screen w-full ">
     <div class="h-full overflow-y-scroll w-full flex items-center justify-center">
         <div class="w-5/6">
     <form class="w-full">
-        <label for="regex" class="label">
-            <span class="label-text">Regex Pattern</span>
-        </label>
         <div class="form-control w-full mb-4">
+            <label for="regex" class="label">
+                <span class="label-text">Regex Pattern</span>
+            </label>
             <input id="regex" type="text" class:input-error={!validateRegex()} bind:value={regex} placeholder="(h|H)ello (w|W)orld" class="input input-bordered w-full" />
         </div>
-        <label for="input1" class="label">
-            <span class="label-text">Input 1</span>
-        </label>
         <div class="form-control w-full mb-4">
-            <input id="input1" type="text" bind:value={inputs[0]} placeholder="Hello World" class="input input-bordered w-full" />
+            <label for="input1" class="label">
+                <span class="label-text">Input 1</span>
+            </label>
+            <textarea id="input1" bind:value={inputs[0]} placeholder="" class="textarea textarea-bordered w-full" />
         </div>
-        <label for="input2" class="label">
-            <span class="label-text">Input 2</span>
-        </label>
         <div class="form-control w-full mb-4">
-            <input id="input2" type="text" bind:value={inputs[1]} placeholder="hello world" class="input input-bordered w-full" />
+            <label for="input2" class="label">
+                <span class="label-text">Input 2</span>
+            </label>
+            <textarea id="input2" bind:value={inputs[1]} placeholder="" class="textarea textarea-bordered  w-full" />
         </div>
-        <label for="input3" class="label">
-            <span class="label-text">Input 3</span>
-        </label>
         <div class="form-control w-full mb-4">
-            <input id="input3" type="text" bind:value={inputs[2]} placeholder="" class="input input-bordered w-full" />
+            <label for="input3" class="label">
+                <span class="label-text">Input 3</span>
+            </label>
+            <textarea id="input3" bind:value={inputs[2]} placeholder="" class="textarea textarea-bordered  w-full" />
         </div>
         <button class="btn mt-2 w-full" on:click={test}>Test</button>
     </form>
     {#if parsedInputs.length > 0}
     <div class="text-left w-full mt-4">
         {#each parsedInputs as parsedInput, i}
-            {#if parsedInput.length > 0 || inputs[i] !== ""}
+            {#if parsedInput.length > 0}
             <div class="text-lg mb-2">
                 Input {i+1}: {parsedInput.length > 0 ? "Accepted" : "Rejected"} 
             </div>
@@ -142,14 +142,14 @@
                     {#each reveals as reveal, i}
                         <div class="flex flex-row items-center">
                             <button class="btn btn-sm btn-circle btn-ghost text-red-500" on:click={() => removeReveal(i)}>✕</button>
-                            <div class="mr-4">Reveal #{i+1}</div>
+                            <div class="mr-4">Reveal #{i}</div>
                             <div>{JSON.stringify(reveal)}</div>
                         </div>
                     {/each}
                     <button class="btn mt-4" on:click={newReveal}>New Reveal</button>
                 </div>
         </div>
-        <button class="btn mt-4" on:click={generate}>Generate</button>
+        <button class="btn mt-4 w-full" on:click={generate}>Generate</button>
     </div>
     {/if}
     </div>
