@@ -1,7 +1,6 @@
 <script lang="js">
 	import { genCircomAllstr } from "$lib/gen_circom";
-	import { applyMinDfa, getStateTransitions, regexToDfa } from "$lib/regex.js";
-	import { stringify } from "postcss";
+	import { applyMinDfa, regexToDfa } from "$lib/regex.js";
 
     let regex = "a=(b|c)+ d=e";
     let inputs = ["a=bccccccccc d=e","",""];
@@ -10,12 +9,15 @@
 
     let parsedInputs = [];
 
+    let circom = "";
+
     function validateRegex(regex) {
         return !!regex
     };
     function test() {
         minDfa = regexToDfa(regex);
         let results = []
+        inputs = inputs.map(s => s.replaceAll("\n", "\r\n"));
         for (let input of inputs) {
             if (input == "") {
                 results.push([]);
@@ -30,11 +32,20 @@
         }
         parsedInputs = results;
     }
+    
+    function displayChar(c) {
+        if (c === "\r") {
+            return "\\r";
+        }
+        if (c === "\n") {
+            return "\\n";
+        }
+        return c;
+    }
 
     function generate() {
         let r = reveals.map(r1 => r1.map(r2 => r2.split(",")));
-        let circom = genCircomAllstr(minDfa, "Test", r);
-        console.log(circom);
+        circom = genCircomAllstr(minDfa, "Test", r);
     }
 
     let currentReveal = 0;
@@ -75,7 +86,7 @@
 
 </script>
 
-<div class="h-screen w-full ">
+<div class="h-screen w-full text-primary-content">
     <div class="h-full overflow-y-scroll w-full flex items-center justify-center">
         <div class="w-5/6">
     <form class="w-full">
@@ -125,7 +136,7 @@
                 <tbody>
                         <tr class="border-b-stone-300">
                     {#each states as state}
-                        <td class="p-0 w-5 cursor-pointer" class:bg-yellow-50={stateSelected(state, reveals, currentReveal)} on:click={() => {selectRevealState(state)}}>{state[2]}</td>
+                        <td class="p-0 w-5 cursor-pointer" class:bg-yellow-50={stateSelected(state, reveals, currentReveal)} on:click={() => {selectRevealState(state)}}>{displayChar(state[2])}</td>
                     {/each}
                         </tr>
                 </tbody>
@@ -149,9 +160,27 @@
                     <button class="btn mt-4" on:click={newReveal}>New Reveal</button>
                 </div>
         </div>
-        <button class="btn mt-4 w-full" on:click={generate}>Generate</button>
+        <button class="btn mt-4 w-full" on:click={generate} onclick="my_modal_2.showModal()">Generate</button>
     </div>
     {/if}
     </div>
-    </div>  
+    </div> 
+        <!-- Open the modal using ID.showModal() method -->
+    <dialog id="my_modal_2" class="modal">
+    <div class="modal-box prose" style="min-width:800px;">
+        <h3 class="font-bold text-lg"></h3>
+    <pre>
+        <svg class="shrink-0 h-5 w-5 transition text-gray-500 group-hover:text-white absolute right-10 cursor-pointer" xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" on:click={() => navigator.clipboard.writeText(circom)}>
+        <path d="M8 2a1 1 0 000 2h2a1 1 0 100-2H8z"></path>
+        <path
+            d="M3 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v6h-4.586l1.293-1.293a1 1 0 00-1.414-1.414l-3 3a1 1 0 000 1.414l3 3a1 1 0 001.414-1.414L10.414 13H15v3a2 2 0 01-2 2H5a2 2 0 01-2-2V5zM15 11h2a1 1 0 110 2h-2v-2z">
+        </path>
+    </svg>
+<code class="text-xs">{circom}</code></pre>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
+    </dialog>
 </div>
