@@ -17,8 +17,8 @@
     function test() {
         minDfa = regexToDfa(regex);
         let results = []
-        inputs = inputs.map(s => s.replaceAll("\n", "\r\n"));
-        for (let input of inputs) {
+        let replaced_inputs = inputs.map(s => s.replaceAll("\n", "\r\n"));
+        for (let input of replaced_inputs) {
             if (input == "") {
                 results.push([]);
                 continue;
@@ -45,7 +45,7 @@
 
     function generate() {
         let r = reveals.map(r1 => r1.map(r2 => r2.split(",")));
-        circom = genCircomAllstr(minDfa, "Test", r);
+        circom = genCircomAllstr(minDfa, "Test", r, regex);
     }
 
     let currentReveal = 0;

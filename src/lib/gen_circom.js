@@ -1,4 +1,4 @@
-export function genCircomAllstr(graph_json, template_name, reveals) {
+export function genCircomAllstr(graph_json, template_name, reveals, regex) {
     const N = graph_json.length;
     // console.log(JSON.stringify(graph_json, null, 2));
     // const graph = Array(N).fill({});
@@ -255,6 +255,7 @@ export function genCircomAllstr(graph_json, template_name, reveals) {
     declarations.push(`pragma circom 2.1.5;\n`);
     declarations.push(`include "@zk-email/zk-regex-circom/circuits/regex_helpers.circom";\n`);
     // declarations.push(`pragma circom 2.1.5;\ninclude "@zk-email/circuits/regexes/regex_helpers.circom";\n`);
+    declarations.push(`// regex: ${regex}`);
     declarations.push(`template ${template_name}(msg_bytes) {`);
     declarations.push(`\tsignal input msg[msg_bytes];`);
     declarations.push(`\tsignal output out;\n`);

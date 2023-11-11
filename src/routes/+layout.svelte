@@ -20,22 +20,18 @@
 						</p>
 					<div tabindex="0" class="collapse collapse-open"> 
 						<h2 class="collapse-title text-2xl font-bold pl-0 pr-0" >Step 1: Input regex and some example strings</h2>
-						<p class="collapse-content">
-                            xxxx
-						</p>
+						<pre class="collapse-content">
+<span>Linebreaks use:</span><code>/r/n
+						</code></pre>
 					</div>
 					<div tabindex="0" class="collapse collapse-open"> 
 						<h2 class="collapse-title text-2xl font-bold pl-0 pr-0">Step 2: Select which states to be revealed</h2>
 						<p class="collapse-content">
-                            xxxx
 						</p>
 					</div>
 					<div tabindex="0" class="collapse collapse-open"> 
                         <h2 class="collapse-title text-2xl font-bold pl-0 pr-0">Step 3: Generate and test the generated code</h2>
                         <div class="collapse-content">
-                            <p>
-                                xxxx
-                            </p>
                         </div>
 					</div>
 				</div>
