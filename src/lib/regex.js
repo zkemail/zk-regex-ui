@@ -1,14 +1,9 @@
 /* eslint-disable no-prototype-builtins */
 /*jslint browser: true*/
 
-// const a2z_nosep = "abcdefghijklmnopqrstuvwxyz";
-// const A2Z_nosep = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-// const a2f_nosep = "abcdef";
-// const A2F_nosep = "ABCDEF";
-// const r0to9_nosep = "0123456789";
-// const escapeMap = { n: "\n", r: "\r", t: "\t", v: "\v", f: "\f" };
-// const whitespace = Object.values(escapeMap);
-// const slash_s = whitespace.join("|");
+const escapeMap = { n: "\n", r: "\r", t: "\t", v: "\v", f: "\f", "^": String.fromCharCode(128) };
+const whitespace = Object.values(escapeMap);
+const slash_s = "(" + whitespace.join("|") + ")";
 
 /**
  * Try parsing simple regular expression to syntax tree.
@@ -145,12 +140,22 @@ function parseRegex(text) {
       }
       return node;
     }
+
+    text = text
+    .replaceAll("[A-Z]", "(A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z)")
+    .replaceAll("[a-z]", "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)")
+    .replaceAll("[A-F]", "(A|B|C|D|E|F)")
+    .replaceAll("[a-f]", "(a|b|c|d|e|f)")
+    .replaceAll("[0-9]", "(0|1|2|3|4|5|6|7|8|9)")
+    .replaceAll("\\w", "(A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|0|1|2|3|4|5|6|7|8|9)")
+    .replaceAll("\\d", "(0|1|2|3|4|5|6|7|8|9)")
+    .replaceAll("\\s", slash_s);
   
     let new_text = [];
     let i = 0;
     while (i < text.length) {
       if (text[i] === "\\") {
-        const escapeMap = { n: "\n", r: "\r", t: "\t", v: "\v", f: "\f", "^": String.fromCharCode(128) };
+        
         const char = text[i + 1];
         new_text.push([escapeMap[char] || char]);
         i += 2;
