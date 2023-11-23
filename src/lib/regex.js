@@ -622,13 +622,22 @@ export function applyMinDfa(minDfa, input) {
                 break;
             }
         }
-        if (minDfa[curr].type === 'accept') {
-            i += 1;
+        i += 1;
+        let nextMatch = false;
+        const nextSymbol = input[i];
+        for (let s of Object.keys(minDfa[curr].edges)) {
+            let symbols = JSON.parse(s);
+            if (symbols.includes(nextSymbol)) {
+                nextMatch = true;
+                break;
+            }
+        }
+
+        if (!nextMatch && minDfa[curr].type === 'accept') {
             curr = 0;
             results.push(states);
             states = [[0, 0, ""]];
         }
-        i += 1;
     }
     return results
 }
