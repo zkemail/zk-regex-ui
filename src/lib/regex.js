@@ -1,9 +1,121 @@
 /* eslint-disable no-prototype-builtins */
 /*jslint browser: true*/
 
+
+const a2z_nosep = "abcdefghijklmnopqrstuvwxyz";
+const A2Z_nosep = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const a2f_nosep = "abcdef";
+const A2F_nosep = "ABCDEF";
+const r0to9_nosep = "0123456789";
 const escapeMap = { n: "\n", r: "\r", t: "\t", v: "\v", f: "\f", "^": String.fromCharCode(128) };
 const whitespace = Object.values(escapeMap);
-const slash_s = "(" + whitespace.join("|") + ")";
+const slash_s = whitespace.join("|");
+
+/** 
+ *  Parse regex to a min DFA spec
+ *  to support some shorthands that make regex easier to write e.g. [A-Z]
+ */
+function regexToMinDFASpec(str) {
+    // Replace all A-Z with A2Z etc
+    let combined_nosep = str
+        .replaceAll("A-Z", A2Z_nosep)
+        .replaceAll("a-z", a2z_nosep)
+        .replaceAll("A-F", A2F_nosep)
+        .replaceAll("a-f", a2f_nosep)
+        .replaceAll("0-9", r0to9_nosep)
+        .replaceAll("\\w", A2Z_nosep + r0to9_nosep + a2z_nosep + "_")
+        .replaceAll("\\d", r0to9_nosep)
+        .replaceAll("\\s", slash_s);
+    // .replaceAll("\\w", A2Z_nosep + r0to9_nosep + a2z_nosep); // I think that there's also an underscore here
+
+    function addPipeInsideBrackets(str) {
+        let result = "";
+        let insideBrackets = false;
+        for (let i = 0; i < str.length; i++) {
+            if (str[i] === "[") {
+                result += str[i];
+                insideBrackets = true;
+                continue;
+            } else if (str[i] === "]") {
+                insideBrackets = false;
+            }
+            let str_to_add = str[i];
+            if (str[i] === "\\") {
+                i++;
+                str_to_add += str[i];
+            }
+            result += insideBrackets ? "|" + str_to_add : str_to_add;
+        }
+        return result.replaceAll("[|", "[").replaceAll("[", "(").replaceAll("]", ")");
+    }
+
+    //   function makeCurlyBracesFallback(str) {
+    //     let result = "";
+    //     let insideBrackets = false;
+    //     for (let i = 0; i < str.length; i++) {
+    //       if (str[i] === "{") {
+    //         result += str[i];
+    //         insideBrackets = true;
+    //         continue;
+    //       } else if (str[i] === "}") {
+    //         insideBrackets = false;
+    //       }
+    //       result += insideBrackets ? "|" + str[i] : str[i];
+    //     }
+    //     return result.replaceAll("[|", "[").replaceAll("[", "(").replaceAll("]", ")");
+    //   }
+
+    function checkIfBracketsHavePipes(str) {
+        let result = true;
+        let insideBrackets = false;
+        let insideParens = 0;
+        let indexAt = 0;
+        for (let i = 0; i < str.length; i++) {
+            if (indexAt >= str.length) break;
+            if (str[indexAt] === "[") {
+                insideBrackets = true;
+                indexAt++;
+                continue;
+            } else if (str[indexAt] === "]") {
+                insideBrackets = false;
+            }
+            if (str[indexAt] === "(") {
+                insideParens++;
+            } else if (str[indexAt] === ")") {
+                insideParens--;
+            }
+            if (insideBrackets) {
+                if (str[indexAt] === "|") {
+                    indexAt++;
+                } else {
+                    result = false;
+                    return result;
+                }
+            }
+            if (!insideParens && str[indexAt] === "|") {
+                console.log("Error: | outside of parens!");
+            }
+            if (str[indexAt] === "\\") {
+                indexAt++;
+            }
+            indexAt++;
+        }
+        return result;
+    }
+
+    let combined;
+    if (!checkIfBracketsHavePipes(combined_nosep)) {
+        // console.log("Adding pipes within brackets between everything!");
+        combined = addPipeInsideBrackets(combined_nosep);
+        if (!checkIfBracketsHavePipes(combined)) {
+            console.log("Did not add brackets correctly!");
+        }
+    } else {
+        combined = combined_nosep;
+    }
+
+    return combined;
+}
 
 /**
  * Try parsing simple regular expression to syntax tree.
@@ -25,6 +137,7 @@ const slash_s = "(" + whitespace.join("|") + ")";
  *                         otherwise returns an object which is the syntax tree.
  */
 function parseRegex(text) {
+    text = regexToMinDFASpec(text);
     "use strict";
     function parseSub(text, begin, end, first) {
       var i,
@@ -140,16 +253,6 @@ function parseRegex(text) {
       }
       return node;
     }
-
-    text = text
-    .replaceAll("[A-Z]", "(A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z)")
-    .replaceAll("[a-z]", "(a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z)")
-    .replaceAll("[A-F]", "(A|B|C|D|E|F)")
-    .replaceAll("[a-f]", "(a|b|c|d|e|f)")
-    .replaceAll("[0-9]", "(0|1|2|3|4|5|6|7|8|9)")
-    .replaceAll("\\w", "(A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z|0|1|2|3|4|5|6|7|8|9)")
-    .replaceAll("\\d", "(0|1|2|3|4|5|6|7|8|9)")
-    .replaceAll("\\s", slash_s);
   
     let new_text = [];
     let i = 0;
