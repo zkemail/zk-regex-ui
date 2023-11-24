@@ -1,6 +1,6 @@
 # ZkRegex UI
 
-View the demo here: https://zk-regex-ui.pages.dev/
+View the demo here: https://zkregex-ui.pages.dev/
 
 ## Developing
 
