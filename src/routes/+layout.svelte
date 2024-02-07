@@ -40,7 +40,7 @@
 					<div class="collapse collapse-open"> 
 						<h2 class="collapse-title text-2xl font-bold pl-0 pr-0">Step 2: Select which states to be revealed</h2>
 						<pre class="collapse-content">
-<span>- Add to each 'Reveal' array by using your mouse to click states in the input selectors
+<span>- Add to each 'Reveal' array by selecting states to reveal
 						</pre>
 					</div>
 					<div class="collapse collapse-open"> 
