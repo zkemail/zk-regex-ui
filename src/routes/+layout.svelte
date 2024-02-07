@@ -35,6 +35,7 @@
 						<h2 class="collapse-title text-2xl font-bold pl-0 pr-0" >Step 1: Input regex and some example strings</h2>
 						<pre class="collapse-content">
 <span>- Linebreaks use:</span><code>/r/n</code>
+<span>- View supported syntax </span><a href="https://zkregex.com/min_dfa" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">here</a>
 						</pre>
 					</div>
 					<div class="collapse collapse-open"> 
