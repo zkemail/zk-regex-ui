@@ -14,6 +14,11 @@
     function validateRegex(regex) {
         return !!regex
     };
+
+    function validateInput(input, regex) {
+        return !input || applyMinDfa(regexToDfa(regex), input).length > 0;
+    }
+
     function test() {
         minDfa = regexToDfa(regex);
         let results = []
@@ -86,38 +91,41 @@
 
 </script>
 
-<div class="h-screen w-full text-primary-content">
-    <div class="h-full overflow-y-scroll w-full flex items-center justify-center">
+<div class="h-auto w-full text-primary-content mb-16 mt-32">
+    <div class="h-auto overflow-y-scroll w-full flex items-center justify-center">
         <div class="w-5/6">
     <form class="w-full">
         <div class="form-control w-full mb-4">
-            <label for="regex" class="label">
+            <label for="regex" class="label" id="regexpattern">
                 <span class="label-text">Regex Pattern</span>
             </label>
-            <input id="regex" type="text" class:input-error={!validateRegex()} bind:value={regex} placeholder="(h|H)ello (w|W)orld" class="input input-bordered w-full" />
+            <input id="regex" type="text" class:input-error={!validateRegex(regex)} bind:value={regex} placeholder="(h|H)ello (w|W)orld" class="input input-bordered w-full" />
         </div>
         <div class="form-control w-full mb-4">
             <label for="input1" class="label">
                 <span class="label-text">Input 1</span>
             </label>
-            <textarea id="input1" bind:value={inputs[0]} placeholder="" class="textarea textarea-bordered w-full" />
+            <textarea id="input1" class:input-error={!validateInput(inputs[0], regex)} bind:value={inputs[0]} placeholder="" class="textarea textarea-bordered w-full" />
         </div>
         <div class="form-control w-full mb-4">
             <label for="input2" class="label">
                 <span class="label-text">Input 2</span>
             </label>
-            <textarea id="input2" bind:value={inputs[1]} placeholder="" class="textarea textarea-bordered  w-full" />
+            <textarea id="input2" class:input-error={!validateInput(inputs[1], regex)} bind:value={inputs[1]} placeholder="" class="textarea textarea-bordered  w-full" />
         </div>
         <div class="form-control w-full mb-4">
             <label for="input3" class="label">
                 <span class="label-text">Input 3</span>
             </label>
-            <textarea id="input3" bind:value={inputs[2]} placeholder="" class="textarea textarea-bordered  w-full" />
+            <textarea id="input3" class:input-error={!validateInput(inputs[2], regex)} bind:value={inputs[2]} placeholder="" class="textarea textarea-bordered  w-full" />
         </div>
-        <button class="btn mt-2 w-full" on:click={test}>Test</button>
+        <button class="btn mt-2 w-full" on:click|preventDefault={test}>Continue</button>
     </form>
     {#if parsedInputs.length > 0}
     <div class="text-left w-full mt-4">
+        Click the states below to select the characters you want to reveal or export.
+        <br/>
+        <br/>
         {#each parsedInputs as parsedInput, i}
             {#if parsedInput.length > 0}
             <div class="text-lg mb-2">
@@ -147,7 +155,7 @@
         {/each}
         <div class="mt-10 w-full">
             <div class="text-xl">
-                Choose states (Select the characters that you want to reveal from above)
+                Selected Reveal Groups
             </div>
                 <div class="flex flex-col">
                     {#each reveals as reveal, i}
@@ -157,7 +165,7 @@
                             <div>{JSON.stringify(reveal)}</div>
                         </div>
                     {/each}
-                    <button class="btn mt-4" on:click={newReveal}>New Reveal</button>
+                    <button class="btn mt-4 w-1/3" on:click={newReveal}>+ Add New Reveal Group</button>
                 </div>
         </div>
         <button class="btn mt-4 w-full" on:click={generate} onclick="my_modal_2.showModal()">Generate</button>
