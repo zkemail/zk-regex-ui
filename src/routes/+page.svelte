@@ -1,25 +1,57 @@
 <script lang="js">
 	import { genCircomAllstr } from "$lib/gen_circom";
 	import { applyMinDfa, regexToDfa } from "$lib/regex.js";
+	import { onMount } from "svelte";
+    import * as compiler from "@zk-email/zk-regex-compiler";
+
+    onMount(async () => {
+        await compiler.default();
+    });
 
     let regex = "a=(b|c)+ d=e";
     let inputs = ["a=bccccccccc d=e","",""];
     let minDfa = [];
     let reveals = [[]];
 
+    /**
+	 * @type {string | any[]}
+	 */
     let parsedInputs = [];
 
     let circom = "";
 
+    /**
+	 * @param {string} regex
+	 */
     function validateRegex(regex) {
-        return !!regex
+        try {
+            new RegExp(regex);
+            return false;
+        } catch (e) {
+            return true;
+        }
     };
 
+    /**
+	 * @param {string} input
+	 * @param {string} regex
+	 */
     function validateInput(input, regex) {
-        return !input || applyMinDfa(regexToDfa(regex), input).length > 0;
+        let boolean =  new RegExp(regex).test(input);
+        return boolean;
     }
 
     function test() {
+        /**
+        This is an example of how to use wasm
+
+        let inp = {parts: [{is_public: true, regex_def: regex}]};
+        console.log(JSON.parse(compiler.gen_regex_and_dfa(inp)));
+        console.log(compiler.gen_circom(inp, "test"));
+
+        Uncomment the above code to use wasm
+        **/
+
         minDfa = regexToDfa(regex);
         let results = []
         let replaced_inputs = inputs.map(s => s.replaceAll("\n", "\r\n"));
@@ -99,7 +131,7 @@
             <label for="regex" class="label" id="regexpattern">
                 <span class="label-text">Regex Pattern</span>
             </label>
-            <input id="regex" type="text" class:input-error={!validateRegex(regex)} bind:value={regex} placeholder="(h|H)ello (w|W)orld" class="input input-bordered w-full" />
+            <input id="regex" type="text" class:input-error={validateRegex(regex)} bind:value={regex} placeholder="(h|H)ello (w|W)orld" class="input input-bordered w-full" />
         </div>
         <div class="form-control w-full mb-4">
             <label for="input1" class="label">
