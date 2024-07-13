@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+[data-theme=light] {
+    --pc: 259 96% 40%;
+}
